@@ -24,7 +24,7 @@ Coefficients are Gaussian rationals — a `fractions.Fraction` for the real and
 one for the imaginary part — and expressions are polynomials in six half-angle
 symbols,
 
-| symbol | meaning | |
+| symbol | meaning | transformation |
 |---|---|---|
 | `ca`, `sa` | `cos(α/2)`, `sin(α/2)` | polar rotation, angle `α` |
 | `cb`, `sb` | `cos(φ/2)`, `sin(φ/2)` | azimuthal rotation, angle `φ` |
