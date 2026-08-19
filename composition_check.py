@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-composition_check.py -- consistency checks for
+composition_check.py -- consistency checks for the spinor transformations of a
+probability-bookkeeping construction
 
-    "Spinor Transformations and the Free Dirac Equation from
-     Probability Bookkeeping"
-
-No result of the paper depends on this script. The identities it evaluates are
-elementary and are stated in the text; this is a check on the algebra, not on
-the claim.
+The construction takes two axioms about a two-outcome analyser -- that the
+difference of the two probabilities transforms as a projection,
+P_up(alpha) - P_dn(alpha) = cos alpha, and that the two sum to one -- and
+obtains the half-angle law, the Pauli generators, the boost sector with its
+indefinite norm, and the free Dirac equation in momentum space.  This script
+checks the algebra of that construction: the composition of non-parallel axes,
+the boost sector, and the reduction to the Dirac equation in momentum space.
+The identities it evaluates are elementary; this is a check on the algebra,
+not on a claim, and nothing depends on it.
 
 EXACT, NOT NUMERICAL
 --------------------
@@ -27,22 +31,23 @@ the transverse means as functions of a free phase).
 
 THE BUILDING BLOCKS
 -------------------
-Transcribed from the paper; nothing further is assumed.
+The two-component bookkeeping laws of the construction, transcribed as they
+stand; nothing further is assumed.
 
-  polar rotation about y, on the z doublet                   (section 5)
+  polar rotation about y, on the z doublet
       A_up(a) = A_up(0) cos(a/2) -/+ A_dn(0) sin(a/2)
       A_dn(a) = +/- A_up(0) sin(a/2) + A_dn(0) cos(a/2)
 
-  azimuthal rotation about z                                 (section 6)
+  azimuthal rotation about z
       the same half-angle law, run with the analyzer pointed into the x-y
       plane, and carried to the z basis by the change of basis.  The even
       split -+phi/2 is derived here, not postulated.
 
-  boost along z                                              (section 7)
+  boost along z
       A_up' =    A_up cosh(t/2) + i A_dn sinh(t/2)
       A_dn' = -i A_up sinh(t/2) +   A_dn cosh(t/2)
 
-The residual sign of the square root (section 4) is carried as a branch label
+The residual sign of the square root is carried as a branch label
 b = +1 / -1 and every structural check is run on both branches.
 
 Axiom 1 is tested as classical vector transport,
@@ -281,13 +286,13 @@ ID4 = kron(ID2, ID2)
 
 # ------------------------------------------------------- bookkeeping generators
 def M_polar(b):
-    """Polar rotation about y on the z doublet (section 5), branch b."""
+    """Polar rotation about y on the z doublet, branch b."""
     s = SA if b > 0 else -SA
     return [[CA, -s], [s, CA]]
 
 def M_inplane(b):
     """The same half-angle law with the analyzer pointed into the x-y plane
-    (section 6), branch b.  This is section 3 run word for word with phi in
+    branch b.  This is the polar construction run word for word with phi in
     the place of alpha."""
     s = SB if b > 0 else -SB
     return [[CB, -s], [s, CB]]
@@ -303,13 +308,13 @@ def basis_change(b):
 
 def M_azimuthal(b):
     """Azimuthal rotation about z on the z doublet, obtained from the in-plane
-    law by the change of basis (section 6) rather than postulated.  The even
+    law by the change of basis rather than postulated.  The even
     split -+phi/2 is what comes out."""
     T, Tinv = basis_change(b)
     return mmul(Tinv, mmul(M_inplane(b), T))
 
 def M_boost(b):
-    """Boost along z on the z doublet (section 7); b = +1 as in the paper,
+    """Boost along z on the z doublet; b = +1 as written above,
     b = -1 with the placement of the imaginary unit exchanged."""
     ish = Poly.const(I if b > 0 else MINUS_I) * SH
     return [[CH, ish], [-ish, CH]]
@@ -376,7 +381,7 @@ def section(title):
 # ==============================================================================
 section('1. GENERATORS: unit determinant, axiom 2, and axiom-1 transport')
 # Every plane carries the same half-angle law; the checks run on both branches
-# of the residual square-root sign (section 4).
+# of the residual square-root sign.
 for b, tag in ((+1, 'branch +'), (-1, 'branch -')):
     mp, ma = M_polar(b), M_azimuthal(b)
     check('polar %s: det = 1' % tag, (det2(mp) - P1).iszero())
@@ -393,10 +398,10 @@ print('  azimuthal matrix, derived by change of basis (branch +):')
 print('    [[%s, %s], [%s, %s]]'
       % (M_azimuthal(+1)[0][0], M_azimuthal(+1)[0][1],
          M_azimuthal(+1)[1][0], M_azimuthal(+1)[1][1]))
-print('  -- diagonal, with the split -+phi/2; not postulated (section 6).')
+print('  -- diagonal, with the split -+phi/2; not postulated.')
 
 # ==============================================================================
-section('2. COMPOSITION for non-parallel axes (the hard test, section 6)')
+section('2. COMPOSITION for non-parallel axes (the hard test)')
 SP = orientation(M_polar(+1), R_polar_cl)
 SA_ = orientation(M_azimuthal(+1), R_azimuthal_cl)
 P = mmul(M_azimuthal(+1), M_polar(+1))
@@ -433,7 +438,7 @@ check('the mirrored order composes too: transport of M_y M_z = R_y R_z',
 check('the classical side is non-commutative in the same way',
       not iszero_m(msub(Rc, mmul(R_polar_cl(SP), R_azimuthal_cl(SA_)))))
 
-# both sign branches propagate through products (section 4, requirement (ii))
+# both sign branches propagate through products (requirement (ii))
 for bz, bp in ((-1, -1), (+1, -1), (-1, +1)):
     Pb = mmul(M_azimuthal(bz), M_polar(bp))
     found = None
@@ -447,7 +452,7 @@ for bz, bp in ((-1, -1), (+1, -1), (-1, +1)):
           found is not None)
 
 # ==============================================================================
-section('3. THE 720 DEGREE PROPERTY of the composite (section 3)')
+section('3. THE 720 DEGREE PROPERTY of the composite')
 v360 = {'ca': -1.0, 'sa': 0.0, 'cb': 1.0, 'sb': 0.0, 'ch': 1.0, 'sh': 0.0}
 Pn, Rn = meval(P, v360), meval(Rc, v360)
 check('at alpha = 360 deg the spinor is -1 while the classical R is +1',
@@ -495,13 +500,13 @@ check('the two branches boost inversely: B(-) = B(+)^(-1)',
 check('the boost generator sits on the sigma_y axis: B = ch*1 - sh*sigma_y',
       iszero_m(msub(B, msub([[CH, P0], [P0, CH]], mscalp(SH, SIGY)))))
 
-# chiral combinations (section 8): A_R = A_up + i A_dn scales as e^{+theta/2}
+# chiral combinations: A_R = A_up + i A_dn scales as e^{+theta/2}
 row_R = [P1 * B[0][0] + Pi * B[1][0], P1 * B[0][1] + Pi * B[1][1]]
 check('A_R = A_up + i A_dn scales with e^{+theta/2} = ch + sh',
       (row_R[0] - (CH + SH)).iszero()
       and (row_R[1] - Pi * (CH + SH)).iszero())
 
-# the unsigned sum is a density, the signed sum is invariant (section 7)
+# the unsigned sum is a density, the signed sum is invariant
 BdB = mmul(dagger(B), B)
 check('density law: tr(B^dag B) = 2 cosh(theta)',
       (BdB[0][0] + BdB[1][1] - TWO * cosh_t).iszero())
@@ -518,10 +523,10 @@ check('covariance: M_z B M_z^(-1) = ch*1 - sh*(rotated generator)',
       iszero_m(msub(mmul(Mz1, mmul(B, dagger(Mz1))), target)))
 
 # ==============================================================================
-section('6. WHICH PAIR THE BOOST MIXES (section 7): not the spin projections')
+section('6. WHICH PAIR THE BOOST MIXES: not the spin projections')
 # A boost along z must commute with rotations about z and must not commute
 # with polar rotations.  On the spin doublet the matrix does the opposite,
-# which is the commutator argument of section 7 in explicit form.
+# which is the commutator argument in explicit form.
 c_polar = msub(mmul(M_polar(+1), B), mmul(B, M_polar(+1)))
 c_azim = msub(mmul(Mz1, B), mmul(B, Mz1))
 check('read as spin: [M_z, B] <> 0, though for a z boost it would have to '
@@ -557,7 +562,7 @@ check('Wigner covariance: R_y B4 R_y^(-1) is the boost of equal rapidity '
 # restricting the four-dimensional boost to one spin slot returns the 2x2 law
 sub_up = [[B4[0][0], B4[0][2]], [B4[2][0], B4[2][2]]]
 sub_dn = [[B4[1][1], B4[1][3]], [B4[3][1], B4[3][3]]]
-check('restricted to spin up, B4 is the boost matrix of section 7',
+check('restricted to spin up, B4 is the boost matrix above',
       iszero_m(msub(sub_up, B)))
 check('restricted to spin down, B4 is its inverse (the other branch)',
       iszero_m(msub(sub_dn, Bm)))
@@ -568,8 +573,8 @@ print('  The partner of the boost is the large/small pair at fixed spin;')
 print('  the spin projection along the boost axis is untouched.')
 
 # ==============================================================================
-section('7. THE FREE DIRAC EQUATION in momentum space (section 8)')
-# Ingredients, all obtained above or in the paper: two branches boosting
+section('7. THE FREE DIRAC EQUATION in momentum space')
+# Ingredients, all obtained above: two branches boosting
 # inversely, equal in the rest frame, and the rest frequency as the mass.
 # The boost axis n = R_y(a) z = (sin a, 0, cos a) is genuinely tilted.
 NSIG = [[COSA, SINA], [SINA, -COSA]]
@@ -627,7 +632,7 @@ print('  Linearity in p is automatic, since p enters only through B^2;')
 print('  E^2 = p^2 + m^2 comes out as the determinant.')
 
 # ==============================================================================
-section('8. SUBSIDIARY CLAIMS of sections 3 and 6')
+section('8. SUBSIDIARY CLAIMS: the azimuthal phase, and spin j')
 # 8a) The azimuthal plane: axiom 1 forces the relative phase to phi itself,
 #     and det = 1 forces the common phase to zero, hence the split -+phi/2.
 def transverse_means(al, ph, k, dl):
@@ -662,7 +667,7 @@ check('azimuthal: a multiple of phi does not (k = 2 as the counter-check)',
 check('azimuthal: det = e^{2 i delta} regardless of phi, so det = 1 forces '
       'the even split -+phi/2', ok_det)
 
-# 8b) Spin j as the symmetric product of 2j aligned doublets (section 3):
+# 8b) Spin j as the symmetric product of 2j aligned doublets:
 #     the binomial law is |d^j_{m,j}(alpha)|^2, sums to one, mean j cos(alpha).
 def wigner_d(j2, m2, mp2, beta):
     """d^j_{m,mp}(beta), with doubled quantum numbers (j2 = 2j)."""

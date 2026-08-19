@@ -1,16 +1,22 @@
 # hep-th-python
 
-Consistency-check scripts accompanying manuscripts by Hergen Scheck
+Consistency-check scripts by Hergen Scheck
 ([ORCID 0000-0003-1806-4048](https://orcid.org/0000-0003-1806-4048)).
 
 ## `composition_check.py`
 
-Checks for *Spinor Transformations and the Free Dirac Equation from Probability
-Bookkeeping*.
+Checks the algebra of a probability-bookkeeping construction of the spinor
+transformations. The construction starts from two axioms about a two-outcome
+analyser — that the difference of the two probabilities transforms as a
+projection, `P↑(α) - P↓(α) = cos α`, and that the two probabilities sum to one
+— and obtains the half-angle law, the Pauli generators, the boost sector with
+its indefinite norm, and the free Dirac equation in momentum space. The script
+verifies that the matrices so obtained transport, compose and reduce as the
+construction says they do.
 
-No result of that manuscript depends on this script. The identities it
-evaluates are elementary and are stated in the text; the script is a check on
-the algebra, not on the claim.
+The script is self-contained and is not referenced by any publication. The
+identities it evaluates are elementary; it is a check on the algebra, not on a
+claim.
 
 ### Exact, not numerical
 
@@ -30,8 +36,9 @@ Two sections sample numerically in addition, where the quantity checked is not
 polynomial in these symbols: the Rodrigues axis and angle, and the transverse
 means as functions of a free phase.
 
-The building blocks are transcribed from the paper and nothing further is
-assumed. Axiom 1 is tested as classical vector transport,
+The building blocks are the two-component bookkeeping laws of the
+construction, transcribed as they stand; nothing further is assumed.
+Axiom 1 is tested as classical vector transport,
 `M† σ_k M = Σ_l R_kl σ_l`, against the classical `SO(3)` matrix; axiom 2
 appears as unitarity in the rotation sector and as `det = 1` throughout. The
 residual sign of the square root is carried as a branch label and every
